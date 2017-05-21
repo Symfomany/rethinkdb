@@ -7,7 +7,9 @@ import VueResource from 'vue-resource';
 import VueSocketio from 'vue-socket.io';
 
 Vue.use(VueResource);
-Vue.use(VueSocketio, 'http://localhost:8099/');
+
+
+//Vue.use(VueSocketio, 'http://localhost:8099/');
 
 
 Vue.config.productionTip = false
