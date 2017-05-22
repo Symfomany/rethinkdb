@@ -9,8 +9,9 @@
         <transition-group name="list" tag="p">
           <div class="list-item" :key="post.id" v-for="post in posts">
             <span class="chip">{{ post.categorie }}</span>
-            <h4>{{ post.title }}</h4>
-            <p>{{ post.description }}</p>
+            <p>
+              <router-link :to="{ name: 'Detail' }">{{ post.title }}</router-link>
+            </p>
             <button class="waves-effect waves-light btn" @click="remove(post)">X</button>
             <hr />
           </div>
@@ -28,7 +29,6 @@
           <textarea v-model="newPost.description" id="description" class="materialize-textarea"></textarea>
           <label for="description">Description entière</label>
         </div>
-
 
         <div class="input-field col s12">
           <div class="file-field input-field">

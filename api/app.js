@@ -41,6 +41,15 @@ app.get('/', function (req, res) {
     res.json(datas)
 });
 
+app.get('/detail/:id', function (req, res) {
+    let id = req.params.id;
+
+    let one = datas.filter((elt) => elt.id == parseInt(id))
+    console.log(one)
+
+    res.json(one[0]);
+
+});
 
 app.post('/send', function (req, res) {
     let sampleFile;
