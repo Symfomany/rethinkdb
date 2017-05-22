@@ -103,7 +103,7 @@ let connection = r.connect({
     app.get('/', (req, res) => {
 
         // RethinkDB Connection
-        r.table('movies').run(connection, (err, cursor) => {
+        r.table('users').run(connection, (err, cursor) => {
             if (err) throw err;
 
             cursor.toArray((err, result) => {
