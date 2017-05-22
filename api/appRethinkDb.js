@@ -1,7 +1,6 @@
 let express = require('express')
 let app = express()
 let r = require('rethinkdb')
-let dbConfig = require('./database');
 
 
 let datas = require('./datas.json');
@@ -15,7 +14,7 @@ app.use(logger('dev'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
-morgan('tiny')
+logger('tiny')
 
 
 // app.use(helmet());
@@ -87,16 +86,27 @@ app.use(function (error, request, response, next) {
     response.json({ error: error.message });
 });
 
+/**
+ * 
+    host: the host to connect to (default localhost).
+    port: the port to connect on (default 28015).
+    db: the default database (default test).
+    user: the user account to connect as (default admin).
+    password: the password for the user account to connect as (default '', empty).
+    timeout: timeout period in seconds for the connection to be opened (default 20).
+ */
+let connection = r.connect({
+    db: "cinema"
+}).then((connection) => {
 
-let connection = r.connect(dbConfig).then((connection) => {
 
-
-    app.get('/', function (req, res) {
+    app.get('/', (req, res) => {
 
         // RethinkDB Connection
-        r.table('series').run(connection, function (err, cursor) {
+        r.table('movies').run(connection, (err, cursor) => {
             if (err) throw err;
-            cursor.toArray(function (err, result) {
+
+            cursor.toArray((err, result) => {
                 if (err) throw err;
                 res.json(result)
             });
