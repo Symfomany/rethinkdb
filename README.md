@@ -56,6 +56,10 @@ rethinkdb import -f '/home
  rethinkdb restore rethinkdb_dump_2017-05-22T16:30:54.tar.gz
 
 
+### Playground
+
+
+
 Conect Cinema + table users
  r.db("cinema").table('users')
 
@@ -97,3 +101,135 @@ Plus Regex
 r.db('cinema').table('comments').filter(function(doc){
     return doc('content').match("(?i)^[a-z\! ]+$")
 })
+
+Order BY:
+
+r.db("cinema").table("users").orderBy("name")
+r.db("cinema").table("users").orderBy({index: "name"})
+
+DESC
+r.db("cinema").table("comments").orderBy(r.desc('dateCreated'))
+
+
+Create INdex:
+
+Create a new secondary index on a table. Secondary indexes improve the speed of many read queries at the slight cost of increased storage space and decreased write performance. 
+
+r.table('comments').indexCreate('email')
+
+
+Retourner que certains champs et en profondeur
+r.db("cinema").table("users").pluck({'address': {'city': true} })
+
+
+Accessing nested object
+r.db("cinema").table("users").get(8)('address')('geo')
+r.db("cinema").table("users").pluck({'address': ['city']})
+r.db("cinema").table("users").pluck({'address': ['city']}).nth(3)
+r.db("cinema").table("users").pluck({'address': ['city']}).nth(3)
+r.db("cinema").table("users").pluck({'address': ['city']}).nth(3)
+
+
+
+
+
+Replace object (clef primaire ne peut etre remplacer)
+r.db("cinema").table("users").get(5).replace({
+  id: 5,
+    title: "Better Caul Saul",
+    content: "Blabla blabla blabla....",
+    status: "publish"
+})
+
+
+Update
+r.db("cinema").table("users").get(5).update({
+  
+    title: "Better Caul Saul 2",
+})
+
+Virer les status des utilisateurs
+r.table("users").replace(lambda post:
+    post.without("status")
+)
+
+Virer les champs qui ne sont aps dans le pluck
+r.db("cinema").table("users").replace(function(post) {
+    return post.pluck("phone", "id")
+})
+
+Remplacement temporaire
+r.db("cinema").table("users").get(5).replace({
+      id: 5,
+      title: "Temporaire",
+  }, {
+      durability: "soft"
+})
+
+  
+// Fait un replace et retourne les changements
+//The result will have two fields old_val and new_val.
+
+
+r.db("cinema").table("users").get(5).replace({
+    id: 5,
+    title: "Coucou",
+    content: "Aleas jacta est",
+    status: "published"
+},{
+    returnChanges: true
+})
+
+
+// table comments
+r.db('cinema').table('comments').filter(r.row('note').gt(5).or(r.row("visible").eq(true)))
+
+// predicats
+r.db('cinema').table('comments').filter(function (comment) {
+    return comment("dateCreated").during(
+        r.time(2012, 1, 1, 'Z'), r.time(2018, 1, 1, 'Z'));
+})
+
+// autre maniere
+r.db('cinema').table('comments').filter(function (comment) {
+  return comment("content").match("Nice");
+})
+
+// utilisateur qui on un phoneNumber
+r.table('users').filter(function (user) {
+    return user.hasFields('phoneNumber');
+})
+
+// utilisateur qui on un role editeur et un privilège admin
+r.table('users').filter(function (user) {
+    return (user('role').eq('editor').default(false).
+        or(user('privilege').eq('admin').default(false)));
+})
+
+
+// jointure
+// { left: <left-document>, right: <right-document> }
+r.db('cinema').table('comments').eqJoin('userId', r.db('cinema').table('users'))
+
+//requete
+r.db('cinema').table('users').filter({
+    address: {
+        city: "South Elvis",
+        suite: "Apt. 692"
+    }
+})
+
+ou
+
+r.table("users").filter(function(user) {
+    return user("name")("first").eq("William")
+        .and(user("name")("last").eq("Adama"));
+})
+
+
+utilisateurs age > 18 ou l'age est manquant
+r.table("users").filter(
+    r.row("age").lt(18), {default: true}
+)
+
+
