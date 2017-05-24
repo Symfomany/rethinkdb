@@ -2,6 +2,20 @@
 
 Realtime App with VueJS + RethinkDB + Socket + VueSocketio
 
+API:
+https://www.rethinkdb.com/api/javascript/
+
+
+start:
+https://www.rethinkdb.com/docs/start-on-startup/
+
+explore datas
+https://www.rethinkdb.com/docs/reql-data-exploration/
+
+
+json exampl
+https://rethinkdb.com/sample/top-250-ratings.json
+
 
 Bons Liens:
 
@@ -231,5 +245,45 @@ utilisateurs age > 18 ou l'age est manquant
 r.table("users").filter(
     r.row("age").lt(18), {default: true}
 )
+
+Insérer des datas en json:
+r.tableCreate('movies');
+r.table('movies').insert(r.http('http://rethinkdb.com/sample/top-250-ratings.json'))
+
+
+Compte distinct:
+r.table('movies').without('id').distinct().count()
+
+Créer un table dedicassé
+r.tableCreate('moviesUnique');
+r.table('moviesUnique').insert(
+	r.table('movies').without('id').distinct()
+)
+
+
+Top ten rank
+r.table('moviesUnique').orderBy('rank').limit(10)
+
+Bottom
+r.table('moviesUnique').orderBy(r.desc('rank')).limit(10)
+
+
+Get the 1st, 2nd ,6th and last records
+
+r.table('moviesUnique').filter(function (doc) {
+  return r.expr([1, 2, 6, r.table('moviesUnique').max('rank')('rank')]).
+    contains(doc('rank'));
+}).orderBy('rank');
+
+
+Find the average number of votes for the top 25 moviesUniques
+r.table('moviesUnique').orderBy('rank').limit(25).avg('votes')
+
+
+Find the most recent movie in the top 25
+r.table('moviesUnique').orderBy('rank').limit(25).max('year')
+
+Find the highest-ranked movie with under 100,000 votes
+r.table('moviesUnique').filter(r.row('votes').lt(100000)).min('rank')
 
 
